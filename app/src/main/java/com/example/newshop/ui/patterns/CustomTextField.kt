@@ -36,14 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.newshop.R
 
-@Preview
 @Composable
 fun MyTextField(
-
+    value: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    placeholderText: String = "Placeholder",
+    placeholderText: String,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     BasicTextField(
@@ -51,8 +51,8 @@ fun MyTextField(
             .background(Color(0xFFE8E8E8), RoundedCornerShape(15.dp))
             .fillMaxWidth()
             .height(29.dp),
-        value = "value",
-        onValueChange = {  },
+        value = value,
+        onValueChange = onValueChange,
         singleLine = true,
         interactionSource = interactionSource,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
@@ -76,7 +76,6 @@ fun MyTextField(
             ) {
                 if (leadingIcon != null) leadingIcon()
                 Box(modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
-                    val value = "value"
                     if (value.isEmpty())
                         Text(
                             placeholderText,
