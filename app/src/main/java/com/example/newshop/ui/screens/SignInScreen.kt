@@ -1,5 +1,7 @@
 package com.example.newshop.ui.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,11 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,7 +34,16 @@ import com.example.newshop.ui.patterns.MyTextField
 import com.example.newshop.ui.theme.NewShopTheme
 
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier) {
+fun SignInScreen(
+    viewModel: SignScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    modifier: Modifier = Modifier
+) {
+    val signScreenState by viewModel.signScreenState.collectAsState()
+    val context = LocalContext.current
+    Log.d("MyTag", signScreenState.toString())
+    LaunchedEffect(key1 = true) {
+        viewModel.checkUserInfo()
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -41,17 +58,24 @@ fun SignInScreen(modifier: Modifier = Modifier) {
             )
         }
         UserInfo(
-            name = "",
-            onNameChange = { },
-            email = "",
-            onEmailChange = { },
-            lastName = "",
-            onLastNameChange = { },
+            name = viewModel.userName,
+            onNameChange = { viewModel.updateName(it) },
+            email = viewModel.eMail,
+            onEmailChange = { viewModel.updateEmail(it) },
+            lastName = viewModel.userLastName,
+            onLastNameChange = { viewModel.updateLastName(it) },
             modifier = modifier.weight(1f)
         )
         LoginActions(
-            signIn = { },
-            loginIn = { },
+            signIn = {
+                viewModel.checkUserInfo()
+                if (signScreenState.isEmptyEmail || signScreenState.isEmptyName || signScreenState.isEmptyLastName) {
+                    Toast.makeText(context, "Incorrect input", Toast.LENGTH_LONG).show()
+                }
+            },
+            loginIn = {
+
+            },
             modifier = modifier
         )
         Column(modifier = modifier.weight(1f), verticalArrangement = Arrangement.SpaceEvenly) {
@@ -102,7 +126,7 @@ private fun LoginActions(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Button(
-            onClick = { /*TODO*/ },
+            onClick = signIn,
             modifier = modifier
                 .fillMaxWidth()
                 .height(46.dp)
@@ -120,7 +144,9 @@ private fun LoginActions(
             Text(text = "Log in",
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Blue,
-                modifier = modifier.clickable { }
+                modifier = modifier.clickable {
+                    loginIn()
+                }
             )
         }
     }
